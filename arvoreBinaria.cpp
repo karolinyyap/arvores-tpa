@@ -6,6 +6,8 @@
 #include <iostream>
 #include <string.h>
 
+//1.048.576
+
 struct Aluno{
     char matricula[9];
     char cpf[15];
@@ -21,31 +23,39 @@ struct Aluno{
 
 struct Alunos{
     Aluno *raiz;
-    int status;
+    int temp;
+    int tamanho;
 };
 
-Alunos *arvore;
+Alunos arvore;
 
 void inicializa(){
-    arvore->raiz = NULL;
-    arvore->status = 0;
+    arvore.raiz = NULL;
+    arvore.temp = 0;
+    arvore.tamanho = 0;
 }
 
-Aluno* adicionarAluno(Aluno *aluno) {
+//Na primeira iteração pega a raiz
+Aluno* adicionarAluno(Aluno *no, Aluno *aluno) {
     aluno->esq = NULL;
     aluno->dir = NULL;
-
-    if (arvore->raiz == NULL){
-        arvore->raiz = aluno;
+    
+    if (no == NULL){
+        no = aluno;
+        arvore.temp++;
+        if(arvore.temp > arvore.tamanho){
+            arvore.tamanho = arvore.temp;
+        }
     } else {
-        if (strcmp(aluno->nome, arvore->raiz->nome) > 0){
-
+        arvore.temp++;
+        if (strcmp(aluno->nome, no->nome) >= 0){
+            no->dir = adicionarAluno(no->dir, aluno);
         } else {
-
+            no->esq = adicionarAluno(no->esq, aluno);
         }
     }
 
-    return arvore->raiz;
+    return no;
 }
 
 void lerArquivoCSV(const char* nomeArquivo) {
@@ -71,8 +81,8 @@ void lerArquivoCSV(const char* nomeArquivo) {
         Aluno* novo = new Aluno;
         if (fscanf(arquivo, "%8[^,],%14[^,],%39[^,],%lf,%d,%39[^,],%39[^\n]\n", 
                    novo->matricula, novo->cpf, novo->nome, &novo->nota, &novo->idade, novo->curso, novo->cidade) == 7) {
-
-            adicionarAluno(novo);
+            arvore.temp=0;
+            arvore.raiz = adicionarAluno(arvore.raiz, novo);
             contador++;
 
             // Mostrar a cada 50 mil registros
@@ -90,26 +100,6 @@ void lerArquivoCSV(const char* nomeArquivo) {
     fclose(arquivo);
 }
 
-// Função recursiva que imprime a árvore em ordem (alfabética pelo nome)
-void imprimirRec(Aluno* raiz) {
-    if (raiz == NULL) return;
-
-    imprimirRec(raiz->esq);  // Visita subárvore esquerda
-    std::cout << "Nome: " << raiz->nome
-              << " | Matrícula: " << raiz->matricula
-              << std::endl;
-    imprimirRec(raiz->dir);  // Visita subárvore direita
-}
-
-// Função pública que chama a recursiva
-void imprimir() {
-    if (arvore->raiz == NULL) {
-        std::cout << "A árvore está vazia!" << std::endl;
-        return;
-    }
-    imprimirRec(arvore->raiz);
-}
-
 
 int main(){
     inicializa();
@@ -121,8 +111,7 @@ int main(){
     fim = clock();
     printf("Tempo de leitura: %d milissegundos\n", fim - inicio);
     system("pause");
-
-    imprimir();
+    printf("%d", arvore.tamanho);
 
     return 0;
 }
