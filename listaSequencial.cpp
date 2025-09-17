@@ -26,13 +26,22 @@ struct Alunos{
 };
 
 Alunos listaSeq;
+int maiorIndice = -1;  
 
 void inicializa(){
-    listaSeq.raiz = new Aluno*[MAXIMO]();
+    listaSeq.raiz = new Aluno*[MAXIMO];
     listaSeq.tamanho = 0;
+
+    for(int i = 0; i < MAXIMO; i++){
+        listaSeq.raiz[i] = NULL;
+    }
 }
 
 bool adicionarAluno(Aluno *aluno, int indice) {
+    if (indice > maiorIndice) {
+        maiorIndice = indice;
+    }
+
     if (indice >= MAXIMO){
         return false;
     }
@@ -50,6 +59,7 @@ bool adicionarAluno(Aluno *aluno, int indice) {
             return adicionarAluno(aluno, (2 * indice) + 2);
         }
     }
+
     
     return true;
     
@@ -111,6 +121,7 @@ int main(){
     inicio = clock();
     lerArquivoCSV("..\\alunos_completosV2.csv");
     printf("Total de alunos inseridos: %d\n", listaSeq.tamanho);
+    printf("Maior índice usado no vetor: %d\n", maiorIndice);
     fim = clock();
     printf("Tempo de leitura: %d milissegundos\n", fim - inicio);
     system("pause");
