@@ -38,11 +38,9 @@ void inicializa(){
 }
 
 bool adicionarAluno(Aluno *aluno, int indice) {
-    if (indice > maiorIndice) {
-        maiorIndice = indice;
-    }
 
     if (indice >= MAXIMO){
+        cout << indice << endl;
         return false;
     }
 
@@ -121,7 +119,6 @@ int main(){
     inicio = clock();
     lerArquivoCSV("..\\alunos_completosV2.csv");
     printf("Total de alunos inseridos: %d\n", listaSeq.tamanho);
-    printf("Maior índice usado no vetor: %d\n", maiorIndice);
     fim = clock();
     printf("Tempo de leitura: %d milissegundos\n", fim - inicio);
     system("pause");
