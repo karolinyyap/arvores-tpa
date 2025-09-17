@@ -2,9 +2,10 @@
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
-#include <cmath>
 #include <iostream>
 #include <string.h>
+
+using namespace std;
 
 #define MAXIMO 1048576
 
@@ -20,22 +21,37 @@ struct Aluno{
 
 
 struct Alunos{
-    Aluno aluno[MAXIMO];
+    Aluno **raiz;
     int tamanho;
 };
 
 Alunos listaSeq;
 
 void inicializa(){
+    listaSeq.raiz = new Aluno*[MAXIMO]();
     listaSeq.tamanho = 0;
 }
 
-//Na primeira iteração pega a raiz
-bool adicionarAluno(Aluno *aluno) {
-    if (listaSeq.tamanho == NULL){
+bool adicionarAluno(Aluno *aluno, int indice) {
+    if (indice >= MAXIMO){
         return false;
     }
 
+    if (listaSeq.raiz[indice] == NULL){
+        listaSeq.raiz[indice] = aluno;
+        listaSeq.tamanho++;
+
+        return true;
+    } else {
+        int comparacao = strcmp(aluno->nome, listaSeq.raiz[indice]->nome);
+        if (comparacao <= 0){
+            return adicionarAluno(aluno, (2 * indice) + 1);
+        } else {
+            return adicionarAluno(aluno, (2 * indice) + 2);
+        }
+    }
+    
+    return true;
     
 }
 
@@ -64,16 +80,16 @@ void lerArquivoCSV(const char* nomeArquivo) {
         if (fscanf(arquivo, "%8[^,],%14[^,],%39[^,],%lf,%d,%39[^,],%39[^\n]\n", 
                    novo->matricula, novo->cpf, novo->nome, &novo->nota, &novo->idade, novo->curso, novo->cidade) == 7) {
 
-            opc = adicionarAluno(novo);
+            opc = adicionarAluno(novo, 0);
             if (opc == false){
                 printf("\nVetor cheio!!!\n");
-                exit(EXIT_FAILURE);
+                break;
             }
             contador++;
 
             // Mostrar a cada 50 mil registros
             if (contador % 50000 == 0) {
-                std::cout << contador << " registros lidos...\n";
+                cout << contador << " registros lidos...\n";
             }
 
         } else {
@@ -94,9 +110,11 @@ int main(){
     int inicio, fim;
     inicio = clock();
     lerArquivoCSV("..\\alunos_completosV2.csv");
+    printf("Total de alunos inseridos: %d\n", listaSeq.tamanho);
     fim = clock();
     printf("Tempo de leitura: %d milissegundos\n", fim - inicio);
     system("pause");
+
 
     return 0;
 }
