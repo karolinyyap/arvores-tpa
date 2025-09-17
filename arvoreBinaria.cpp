@@ -82,7 +82,8 @@ void lerArquivoCSV(const char* nomeArquivo) {
         if (fscanf(arquivo, "%8[^,],%14[^,],%39[^,],%lf,%d,%39[^,],%39[^\n]\n", 
                    novo->matricula, novo->cpf, novo->nome, &novo->nota, &novo->idade, novo->curso, novo->cidade) == 7) {
 
-            adicionarAluno(novo);
+            arvore.temp = 0;
+            arvore.raiz = adicionarAluno(arvore.raiz, novo);
             contador++;
 
             // Mostrar a cada 50 mil registros
