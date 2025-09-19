@@ -26,7 +26,6 @@ struct Alunos{
 };
 
 Alunos listaSeq;
-int maiorIndice = -1;  
 
 void inicializa(){
     listaSeq.raiz = new Aluno*[MAXIMO];
