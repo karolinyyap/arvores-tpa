@@ -23,7 +23,6 @@ struct Aluno{
 struct Alunos{
     Aluno *raiz;
     int quantidade;
-    int tamanhoAtual;
 };
 
 Alunos arvore;
@@ -31,27 +30,30 @@ Alunos arvore;
 void inicializa(){
     arvore.raiz = NULL;
     arvore.quantidade = 0;
-    arvore.tamanhoAtual = 0;
 }
 
 void atualizaAltura(Aluno *no){
-    ///.....
-    ;
+    if (no->esq == NULL && no->dir == NULL){
+        no->altura = 0;
+    } else {
+        if (altura(no->esq) > altura(no->dir)){
+            no->altura = altura(no->esq);
+        } else {
+            no->altura = altura(no->dir);
+        }
+    }
 }
 
 Aluno* rotacaoSimplesEsquerda(Aluno *raizAtual) {
     Aluno *novaRaiz = raizAtual->dir;
     Aluno *filho = novaRaiz->esq;
 
-    // Executa a rotação
     novaRaiz->esq = raizAtual->dir;
     raizAtual->dir = filho;
 
-    // Atualiza alturas
     atualizaAltura(novaRaiz);
     atualizaAltura(raizAtual);
 
-    // Novo nó raiz
     return novaRaiz;
 }
 
@@ -59,15 +61,12 @@ Aluno* rotacaoSimplesDireita(Aluno *raizAtual) {
     Aluno *novaRaiz = raizAtual->esq;
     Aluno *filho = novaRaiz->dir;
 
-    // Executa a rotação
     novaRaiz->dir = raizAtual->esq;
     raizAtual->esq = filho;
 
-    // Atualiza alturas
     atualizaAltura(novaRaiz);
     atualizaAltura(raizAtual);
 
-    // Novo nó raiz
     return novaRaiz;
 }
 
@@ -78,7 +77,7 @@ Aluno* rotacaoDuplaEsqDir(Aluno *raizAtual) {
 }
 
 Aluno* rotacaoDuplaDirEsq(Aluno *raizAtual) {
-    raizAtual->esq = rotacaoSimplesDireita(raizAtual);
+    raizAtual->dir = rotacaoSimplesDireita(raizAtual);
 
     return rotacaoSimplesEsquerda(raizAtual);
 }
@@ -92,31 +91,43 @@ int altura(Aluno *no){
 }
 
 Aluno* adicionarAluno(Aluno *no, Aluno *aluno) {
-    if(no == NULL)
-        return no = aluno;
+    int ladoInserido; //1 - direita; 0 - esquerda
 
+    if(no == NULL){
+        return no = aluno;
+        arvore.quantidade++;
+    }
     if(strcmp(aluno->nome, no->nome)){
         no->dir = adicionarAluno(no->dir, aluno);
+        ladoInserido = 1;
     }
     else{
         no->esq = adicionarAluno(no->esq, aluno);
+        ladoInserido = 0;
     }
 
     atualizaAltura(no);
 
     int balanceamento = altura(no->esq) - altura(no->dir);
 
-    if(balanceamento > 1 && /*condicao para rotação SimplesDireita*/0) {
-        ///....
+    int balanceamento2;
+    if (ladoInserido == 1){
+        balanceamento2 = altura(no->dir->esq) - altura(no->dir->dir);
+    } else {
+        balanceamento2 = altura(no->esq->esq) - altura(no->esq->dir);
     }
-    if(balanceamento < -1 &&  0) {
+
+    if(balanceamento > 1 && balanceamento2 >= 0) {
+        return rotacaoSimplesDireita(no);  
+    }
+    if(balanceamento < -1 && balanceamento2 <= 0) {
         return rotacaoSimplesEsquerda(no);            
     }
-    if(balanceamento > 1 && /*condicao para rotação DuplaDireita*/0) {
-        ///....
+    if(balanceamento > 1 && balanceamento2 < 0) {
+        return rotacaoDuplaEsqDir(no);
     }
-    if(balanceamento < -1 && /*condição para rotação DuplaEsquerda*/0) {
-        ///....
+    if(balanceamento < -1 && balanceamento2 > 0) {
+        return rotacaoDuplaDirEsq(no);
     }
 
     return no;
@@ -145,7 +156,7 @@ void lerArquivoCSV(const char* nomeArquivo) {
         Aluno* novo = new Aluno;
         if (fscanf(arquivo, "%8[^,],%14[^,],%39[^,],%lf,%d,%39[^,],%39[^\n]\n", 
                    novo->matricula, novo->cpf, novo->nome, &novo->nota, &novo->idade, novo->curso, novo->cidade) == 7) {
-
+            
             arvore.raiz = adicionarAluno(arvore.raiz, novo);
             contador++;
 
