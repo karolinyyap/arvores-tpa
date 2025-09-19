@@ -55,6 +55,34 @@ Aluno* rotacaoSimplesEsquerda(Aluno *raizAtual) {
     return novaRaiz;
 }
 
+Aluno* rotacaoSimplesDireita(Aluno *raizAtual) {
+    Aluno *novaRaiz = raizAtual->esq;
+    Aluno *filho = novaRaiz->dir;
+
+    // Executa a rotação
+    novaRaiz->dir = raizAtual->esq;
+    raizAtual->esq = filho;
+
+    // Atualiza alturas
+    atualizaAltura(novaRaiz);
+    atualizaAltura(raizAtual);
+
+    // Novo nó raiz
+    return novaRaiz;
+}
+
+Aluno* rotacaoDuplaEsqDir(Aluno *raizAtual) {
+    raizAtual->esq = rotacaoSimplesEsquerda(raizAtual);
+
+    return rotacaoSimplesDireita(raizAtual);
+}
+
+Aluno* rotacaoDuplaDirEsq(Aluno *raizAtual) {
+    raizAtual->esq = rotacaoSimplesDireita(raizAtual);
+
+    return rotacaoSimplesEsquerda(raizAtual);
+}
+
 int altura(Aluno *no){
 	if (no == NULL)
 		return -1; 
