@@ -223,8 +223,67 @@ void lerArqBusca(const char* nomeArquivo){
     }
 }
 
-Aluno* exclusao(Aluno* no, const char* nome){
-    
+Aluno* exclusao(Aluno* raiz, const char* nome) {
+    if (raiz == NULL) {
+        printf("Valor não encontrado!\n");
+        return NULL;
+    }
+
+    // Desce na árvore até achar
+    if (strcmp(nome, raiz->nome) < 0) {
+        raiz->esq = exclusao(raiz->esq, nome);
+    } else if (strcmp(nome, raiz->nome) > 0) {
+        raiz->dir = exclusao(raiz->dir, nome);
+    } else {
+        // Nó encontrado
+        if (raiz->esq == NULL) {
+            Aluno* temp = raiz->dir;
+            delete raiz;   // você usa new, então use delete
+            return temp;
+        } else if (raiz->dir == NULL) {
+            Aluno* temp = raiz->esq;
+            delete raiz;
+            return temp;
+        }
+
+        // Nó com dois filhos: pega o menor da subárvore direita
+        Aluno* temp = raiz->dir;
+        while (temp->esq != NULL) {
+            temp = temp->esq;
+        }
+
+        // Copia todos os dados do sucessor
+        strcpy(raiz->matricula, temp->matricula);
+        strcpy(raiz->cpf, temp->cpf);
+        strcpy(raiz->nome, temp->nome);
+        raiz->nota = temp->nota;
+        raiz->idade = temp->idade;
+        strcpy(raiz->curso, temp->curso);
+        strcpy(raiz->cidade, temp->cidade);
+
+        // Remove o sucessor
+        raiz->dir = exclusao(raiz->dir, temp->nome);
+    }
+
+    //Atualiza altura
+    atualizaAltura(raiz);
+
+    //Balanceamento
+    int balanceamento = altura(raiz->esq) - altura(raiz->dir);
+
+    if (balanceamento > 1 && (altura(raiz->esq->esq) >= altura(raiz->esq->dir)))
+        return rotacaoSimplesDireita(raiz);
+
+    if (balanceamento > 1 && (altura(raiz->esq->esq) < altura(raiz->esq->dir)))
+        return rotacaoDuplaEsqDir(raiz);
+
+    if (balanceamento < -1 && (altura(raiz->dir->dir) >= altura(raiz->dir->esq)))
+        return rotacaoSimplesEsquerda(raiz);
+
+    if (balanceamento < -1 && (altura(raiz->dir->dir) < altura(raiz->dir->esq)))
+        return rotacaoDuplaDirEsq(raiz);
+
+    return raiz;
 }
 
 void lerArqExclusao(const char* nomeArquivo){
@@ -239,7 +298,7 @@ void lerArqExclusao(const char* nomeArquivo){
     while (fscanf(arquivo, "%49[^\n]\n", nome) == 1) {
     Aluno* pos = exclusao(arvore.raiz, nome);
     if (pos != NULL){
-        std::cout << "Exclui!" << "\n";
+        std::cout << "Excluí!" << "\n";
     } else {
         std::cout << "Não achei para excluir :(\n";
         }
@@ -264,6 +323,12 @@ int main(){
     fim2 = clock();
     printf("Tempo de leitura: %d milissegundos\n", fim2 - inicio2); //150 milisegundos
     printf("Altura máxima da árvore: %d\n", arvore.alturaMaxima); //23
+
+    int inicio3, fim3;
+    inicio3 = clock();
+    lerArqExclusao("..\\alunos_excluir.txt");
+    fim3 = clock();
+    printf("Tempo de leitura: %d milissegundos\n", fim3 - inicio3); //200 milisegundos
 
     return 0;
 }
